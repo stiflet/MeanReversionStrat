@@ -235,8 +235,8 @@ infos <- apply(zValues, 1, function(row){
   df <- data.frame(
     #AmountA = qty_A,
     #AmountB = qty_B,
-    lastCloseA = PA,
-    lastCloseB = PB
+    lastCloseA = PA_now,
+    lastCloseB = PB_now
     
   )
   
