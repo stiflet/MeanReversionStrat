@@ -43,5 +43,175 @@ dfB <- read.csv('dfB.csv')%>%
 source('priceFun.R')
 
 dfZValues
-
+#152.79
+#0.84800c
+#1.24925199
 ```
+
+```{r}
+
+
+cf <- import('curl_cffi')
+
+symbols <- dfZValues %>%
+  select(CoinA, CoinB)%>%
+  as.matrix
+
+rests <- list()
+results <- apply(symbols, 1, function(x){
+  urlA <- paste0("https://api.bitget.com/api/v2/spot/market/candles?symbol=",x[1], "&granularity=30min&limit=100")
+  urlB <- paste0("https://api.bitget.com/api/v2/spot/market/candles?symbol=",x[2], "&granularity=30min&limit=100")
+  
+  
+  
+  respA <- cf$requests$get(urlA)
+  respB <- cf$requests$get(urlB)
+    
+    
+  
+  #rests <- append(rests, resps)
+  
+  
+})
+
+
+results$CoinA$content
+
+results[2]
+library(jsonlite)
+
+coinA <- jsonlite::fromJSON(results[[1]]$content$decode())
+coinA.df <- coinA$data%>%
+  data.frame()%>%
+  select(
+    X1,
+    X5
+  )%>%
+  rename(
+    Date = X1,
+    CoinA_Close = X5
+  )%>%
+  mutate(
+    across(everything(),as.numeric)
+  )
+
+
+             
+coinB <- jsonlite::fromJSON(results[[2]]$content$decode())
+coinB.df <- coinB$data%>%
+  data.frame()%>%
+  select(
+    X1,
+    X5
+  )%>%
+  rename(
+    Date = X1,
+    CoinB_Close = X5
+  )%>%
+  mutate(
+    across(everything(),as.numeric)
+  )
+
+
+df.newZvals <- inner_join(coinA.df, coinB.df, by = 'Date', suffix = c('A', 'B'))
+
+missMatch(df.newZvals)
+```
+
+```{r}
+library(dplyr)
+library(httr)
+library(jsonlite)
+library(purrr)
+library(tibble)
+
+# ---------- helper ---------------------------------------------------
+get_candles <- function(symbol, granularity = "30min", limit = 100) {
+
+  url <- sprintf(
+    "https://api.bitget.com/api/v2/spot/market/candles?symbol=%s&granularity=%s&limit=%d",
+    symbol, granularity, limit
+  )
+
+  resp <- GET(url)
+  stop_for_status(resp)
+
+  raw <- content(resp, "text", encoding = "UTF-8")
+  dat <- fromJSON(raw)$data
+
+  if (length(dat) == 0)
+    return(tibble(Date = numeric(), Close = numeric()))
+
+  as_tibble(dat, .name_repair = "minimal") |>
+    transmute(
+      Date  = as.numeric(..1) / 1000,   # ms → s ; drop “/1000” if you want raw ms
+      Close = as.numeric(..5)
+    )
+}
+
+# ---------- main loop ------------------------------------------------
+results <- dfZValues |>
+  rowwise() |>
+  mutate(
+    df = list({
+      A <- get_candles(CoinA) |> rename(CoinA_Close = Close)
+      B <- get_candles(CoinB) |> rename(CoinB_Close = Close)
+      inner_join(A, B, by = "Date")
+    })
+  ) |>
+  ungroup()
+
+# ---------- (optional) checker --------------------------------------
+results <- results |>
+  mutate(mismatch_flag = map(df, missMatch))
+
+
+
+dfZValues
+```
+
+```{r}
+
+
+symbols <- list(c("WIFUSDT", "XRPUSDT"))
+
+
+cf <- import('curl_cffi')
+code <- paste('
+from curl_cffi import requests \n'
+,symbols,
+
+'
+dfs = []
+
+for symbol in symbols:
+
+  response = requests.get(f"https://api.bitget.com/api/v2/spot/market/candles?symbol={symbol}&granularity=30min&limit=100")
+  
+  
+  df = pd.DataFrame(response.json()["data"])
+  df["Pair"] = symbol
+  dfs.append(df)
+  
+dfA = pd.concat(dfs,  ignore_index=True)
+dfA.columns = ["Time", "Opening price", "Highest price", "Lowest price", "Closing price", "Trading volume", "Trading volume in USDT", "Trading volume in quote     currency", "Pair"]
+dfA.Time = pd.to_datetime(pd.to_numeric(dfA.Time), unit= "ms")
+
+
+')
+
+print(code)
+response <- py_run_string(code)
+
+ddf <- response$dfA%>%
+  mutate(
+    across(c(-Time, -Pair), as.numeric),
+    Pair = factor(Pair)
+  )
+
+
+coinA <- ddf %>%
+  filter()
+```
+
+dd
