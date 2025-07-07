@@ -31,8 +31,7 @@ class Bitget:
 
 
         def getCandles(self, symbols, candle_limit: int = 1000,
-                    semaphore_limit: int = 1000, save: bool = False):
-            granularity = input('granularity: ')
+                    semaphore_limit: int = 1000, save: bool = False, granularity = '15min'):
             async def Candles(symbols):
                 async def fetch(session, symbol, semaphore):
                     async with semaphore:
@@ -101,7 +100,7 @@ if __name__ == "__main__":
     getdata = Bitget().Data()
 
     symbols = getdata.getSymbols(save=True)  # load symbols from Bitget
-    candles = getdata.getCandles(symbols, candle_limit=1000, save=True)
+    candles = getdata.getCandles(symbols, candle_limit=1000, granularity = '15min', save=True)
     #df = pd.read_csv('Output/candles.csv', parse_dates=['Time'])
     #dfA = getdata.Pivot_df(df, minVol=10**6, save=True)
     
