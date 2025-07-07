@@ -216,7 +216,8 @@ infos <- apply(zValues, 1, function(row){
   
   PA <- last(CoinA_Close)
   PB <- last(CoinB_Close)
-  
+
+  N_short = 10
   
   if(as.double(row[[3]]) < 0){
     
