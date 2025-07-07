@@ -102,7 +102,7 @@ if __name__ == "__main__":
     getdata = Bitget().Data()
 
     symbols = getdata.getSymbols(save=True)  # load symbols from Bitget
-    candles = getdata.getCandles(symbols, candle_limit=1000, granularity = '1h', save=True)
+    candles = getdata.getCandles(symbols, candle_limit=1000, save=True)
     #df = pd.read_csv('Output/candles.csv', parse_dates=['Time'])
     #dfA = getdata.Pivot_df(df, minVol=10**6, save=True)
     
