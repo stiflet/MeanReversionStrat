@@ -1,0 +1,47 @@
+---
+title: "Main"
+output: html_document
+date: "2025-07-04"
+---
+
+```{r}
+
+library(reticulate)
+
+```
+
+```{r}
+#py_run_file('CoinData2.py')
+source('corMat.R')
+py_run_file('candles.py')
+```
+
+```{r}
+library(tidyverse)
+
+dfA <- read.csv('dfA.csv')%>%
+  data.frame()%>%
+  select(Time, Closing.price, Pair)%>%
+  mutate(
+    Closing.price = as.numeric(Closing.price),
+    Date = as.POSIXct(Time / 1000, origin = "1970-01-01", tz = "UTC")
+         )%>%
+  select(-Time)
+
+
+dfB <- read.csv('dfB.csv')%>%
+  data.frame()%>%
+  select(Time, Closing.price, Pair)%>%
+  mutate(
+    Closing.price = as.numeric(Closing.price),
+    Date = as.POSIXct(Time / 1000, origin = "1970-01-01", tz = "UTC")
+         )%>%
+  select(-Time)
+```
+
+```{r}
+source('priceFun.R')
+
+dfZValues
+
+```
