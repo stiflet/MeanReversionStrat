@@ -45,7 +45,6 @@ class Bitget:
                     
                     return df
                     
-
                 semaphore = asyncio.Semaphore(semaphore_limit)
                 
                 async with AsyncSession() as session:
