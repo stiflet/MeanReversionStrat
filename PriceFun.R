@@ -214,8 +214,8 @@ infos <- apply(zValues, 1, function(row){
   beta <- coef(lm(log(CoinB_Close) ~ log(CoinA_Close)))[[2]]
   
   
-  PA <- last(CoinA_Close)
-  PB <- last(CoinB_Close)
+  PA_now <- last(CoinA_Close)
+  PB_now <- last(CoinB_Close)
 
   N_short = 10
   
