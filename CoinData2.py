@@ -30,7 +30,7 @@ class Bitget:
             return symbols
 
 
-        def getCandles(self, symbols, candle_limit: int = 1000,
+        def getCandles(self, symbols, candle_limit: int = 100,
                     semaphore_limit: int = 1000, save: bool = False, granularity = '15min'):
             async def Candles(symbols):
                 async def fetch(session, symbol, semaphore):
