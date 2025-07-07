@@ -94,7 +94,6 @@ class Bitget:
 
 
 
-
 if __name__ == "__main__":
 
     getdata = Bitget().Data()
